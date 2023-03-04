@@ -8,73 +8,78 @@ import (
 )
 
 type CompletionRequest struct {
-	Model       string  `json:"model"`
-	Prompt      string  `json:"prompt"`
-	MaxTokens   int     `json:"max_tokens"`
-	Temperature float32 `json:"temperature"`
+	Model            string                 `json:"model"`
+	Prompt           string                 `json:"prompt"`
+	MaxTokens        int                    `json:"max_tokens,omitempty"`
+	Temperature      float32                `json:"temperature,omitempty"`
+	TopP             float32                `json:"top_p,omitempty"`
+	N                int                    `json:"n,omitempty"`
+	Stream           bool                   `json:"stream,omitempty"`
+	Logprobs         int                    `json:"logprobs,omitempty"`
+	Echo             bool                   `json:"echo,omitempty"`
+	Stop             []string               `json:"stop,omitempty"`
+	PresencePenalty  float32                `json:"presence_penalty,omitempty"`
+	FrequencyPenalty float32                `json:"frequency_penalty,omitempty"`
+	BestOf           int                    `json:"best_of,omitempty"`
+	LogitBias        map[string]interface{} `json:"logit_bias,omitempty"`
 }
 
 type CompletionResponse struct {
-	ID      string   `json:"id"`
-	Object  string   `json:"object"`
-	Created int      `json:"created"`
-	Model   string   `json:"model"`
-	Choices []Choice `json:"choices"`
+	Choices []struct {
+		Text         string    `json:"text"`
+		Index        int       `json:"index"`
+		Logprobs     []Logprob `json:"logprobs"`
+		FinishReason string    `json:"finish_reason"`
+	} `json:"choices"`
 }
 
-type Choice struct {
-	Text    string  `json:"text"`
-	Index   int     `json:"index"`
-	LogProb float32 `json:"logprobs"`
+type Logprob struct {
+	Text  string  `json:"text"`
+	Value float32 `json:"value"`
 }
 
-func GetCompletion(apiKey string, prompt string, modelName string, maxTokens int, temperature float32) ([]string, error) {
-	url := "https://api.openai.com/v1/completions"
+func GetCompletion(apiKey string, model string, prompt string, maxTokens int, temperature float32) (string, error) {
+	client := &http.Client{}
 
-	// Create completion request payload
-	requestBody := CompletionRequest{
-		Model:       modelName,
+	requestData := &CompletionRequest{
+		Model:       model,
 		Prompt:      prompt,
 		MaxTokens:   maxTokens,
 		Temperature: temperature,
 	}
-	jsonPayload, err := json.Marshal(requestBody)
+
+	requestDataBytes, err := json.Marshal(requestData)
 	if err != nil {
-		return nil, fmt.Errorf("error encoding request payload: %v", err)
+		return "", fmt.Errorf("failed to encode request data: %v", err)
 	}
 
-	// Send completion request
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/completions", bytes.NewBuffer(requestDataBytes))
 	if err != nil {
-		return nil, fmt.Errorf("error creating request: %v", err)
+		return "", fmt.Errorf("failed to create HTTP request: %v", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
-	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("error sending request: %v", err)
+		return "", fmt.Errorf("failed to perform HTTP request: %v", err)
 	}
-
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("get completion failed with status code %d", resp.StatusCode)
+		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	// Handle the completion response
 	var response CompletionResponse
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
-		return nil, fmt.Errorf("error decoding response body: %v", err)
+		return "", fmt.Errorf("failed to decode response body: %v", err)
 	}
 
-	var completions []string
-	for _, choice := range response.Choices {
-		completions = append(completions, choice.Text)
+	if len(response.Choices) == 0 {
+		return "", fmt.Errorf("no completions returned")
 	}
 
-	return completions, nil
+	return response.Choices[0].Text, nil
 }
