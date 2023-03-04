@@ -214,7 +214,7 @@ func main() {
 
 	// Create a new fine-tune
 	trainingFileID := "file-XGinujblHPwGLSztz8cPS8XY"
-	fineTuneID, err := openai.CreateFineTune(apiKey, trainingFileID)
+	fineTuneID, err := oacg.CreateFineTune(apiKey, trainingFileID)
 	if err != nil {
 		fmt.Printf("Failed to create fine-tune: %v\n", err)
 		return
@@ -222,7 +222,7 @@ func main() {
 	fmt.Printf("Fine-tune created with ID %s\n", fineTuneID)
 
 	// List all fine-tunes
-	fineTuneList, err := openai.ListFineTunes(apiKey)
+	fineTuneList, err := oacg.ListFineTunes(apiKey)
 	if err != nil {
 		fmt.Printf("Failed to list fine-tunes: %v\n", err)
 		return
@@ -232,7 +232,7 @@ func main() {
 	}
 
 	// Get a specific fine-tune
-	fineTune, err := openai.GetFineTune(apiKey, fineTuneID)
+	fineTune, err := oacg.GetFineTune(apiKey, fineTuneID)
 	if err != nil {
 		fmt.Printf("Failed to get fine-tune: %v\n", err)
 		return
@@ -240,7 +240,7 @@ func main() {
 	fmt.Printf("Fine-tune status: %s\n", fineTune.Status)
 
 	// Cancel a fine-tune
-	err = openai.CancelFineTune(apiKey, fineTuneID)
+	err = oacg.CancelFineTune(apiKey, fineTuneID)
 	if err != nil {
 		fmt.Printf("Failed to cancel fine-tune: %v\n", err)
 		return
@@ -248,7 +248,7 @@ func main() {
 	fmt.Println("Fine-tune cancelled")
 
 	// Get fine-tune events
-	events, err := openai.GetFineTuneEvents(apiKey, fineTuneID)
+	events, err := oacg.GetFineTuneEvents(apiKey, fineTuneID)
 	if err != nil {
 		fmt.Printf("Failed to get fine-tune events: %v\n", err)
 		return
@@ -258,11 +258,61 @@ func main() {
 	}
 
 	// Delete a fine-tune
-	err = openai.DeleteFineTune(apiKey, fineTuneID)
+	err = oacg.DeleteFineTune(apiKey, fineTuneID)
 	if err != nil {
 		fmt.Printf("Failed to delete fine-tune: %v\n", err)
 		return
 	}
 	fmt.Println("Fine-tune deleted")
+}
+```
+
+// transcribe audio
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/0xnu/oacg"
+)
+
+func main() {
+    apiKey := "<your-api-key>"
+
+	audioFilePath := "./content/audio.mp3"
+	model := "whisper-1"
+
+	transcription, err := oacg.TranscribeAudio(apiKey, audioFilePath, model)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(transcription.Text)
+}
+```
+
+// translate audio
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/0xnu/oacg"
+)
+
+func main() {
+    apiKey := "<your-api-key>"
+
+	audioFilePath := "./content/german.m4a"
+	model := "whisper-1"
+
+	translation, err := oacg.TranslateAudio(apiKey, audioFilePath, model)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(translation.Text)
 }
 ```
