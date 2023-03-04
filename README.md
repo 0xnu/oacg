@@ -9,9 +9,7 @@ Applications written in [Go](https://go.dev/) can easily access [OpenAI API](htt
 
 ### Usage Example
 
-```go
-
-```
+Read usage instructions [here](./USAGE.md).
 
 ### Contribute
 
