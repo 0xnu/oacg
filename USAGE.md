@@ -146,3 +146,28 @@ func main() {
     fmt.Printf("Embeddings: %v\n", embeddings)
 }
 ```
+
+// moderations
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/0xnu/oacg"
+)
+
+func main() {
+    apiKey := "<your-api-key>"
+
+    input := "I want to kill them."
+
+    score, err := oacg.GetModeration(apiKey, input)
+    if err != nil {
+        fmt.Printf("Failed to get moderation score: %v\n", err)
+        return
+    }
+
+    fmt.Printf("Moderation score: %.2f\n", score)
+}
+```
