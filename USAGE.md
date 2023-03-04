@@ -316,3 +316,55 @@ func main() {
 	fmt.Println(translation.Text)
 }
 ```
+
+// generate image
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/0xnu/oacg"
+)
+
+func main() {
+    apiKey := "<your-api-key>"
+
+	prompt := "A cute baby sea otter"
+	n := 2
+	size := "1024x1024"
+
+	generationResponse, err := openai.GenerateImages(apiKey, prompt, n, size)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(generationResponse.Url)
+}
+```
+
+// image variations
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/0xnu/oacg"
+)
+
+func main() {
+    apiKey := "<your-api-key>"
+
+	imagePath := "./content/image.png"
+	n := 2
+	size := "1024x1024"
+
+	variationResponse, err := openai.VariationsImages(apiKey, imagePath, n, size)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(variationResponse.Url)
+}
+```
