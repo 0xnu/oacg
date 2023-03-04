@@ -14,6 +14,10 @@ type Model struct {
 	Description string `json:"description"`
 }
 
+type ModelListResponse struct {
+	Data []Model `json:"data"`
+}
+
 func ListModels(apiKey string) ([]Model, error) {
 	client := &http.Client{}
 
@@ -35,13 +39,13 @@ func ListModels(apiKey string) ([]Model, error) {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var models []Model
-	err = json.NewDecoder(resp.Body).Decode(&models)
+	var response ModelListResponse
+	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode response body: %v", err)
 	}
 
-	return models, nil
+	return response.Data, nil
 }
 
 func GetModel(apiKey string, modelID string) (*Model, error) {
