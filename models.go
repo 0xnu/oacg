@@ -6,49 +6,70 @@ import (
 	"net/http"
 )
 
-type ListModelsResponse struct {
-	Data []ModelInfo `json:"data"`
-}
-
-type ModelInfo struct {
+type Model struct {
 	ID          string `json:"id"`
 	Object      string `json:"object"`
-	Created     int64  `json:"created"`
-	ModelID     string `json:"model_id"`
-	DisplayName string `json:"display_name"`
+	CreatedAt   int64  `json:"created"`
+	ModelType   string `json:"model_type"`
+	Description string `json:"description"`
 }
 
-func ListModels(apiKey string) error {
-	url := "https://api.openai.com/v1/models"
+func ListModels(apiKey string) ([]Model, error) {
+	client := &http.Client{}
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", "https://api.openai.com/v1/models", nil)
 	if err != nil {
-		return fmt.Errorf("error creating request: %v", err)
+		return nil, fmt.Errorf("failed to create HTTP request: %v", err)
 	}
 
-	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
-	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("error sending request: %v", err)
+		return nil, fmt.Errorf("failed to perform HTTP request: %v", err)
 	}
-
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("ListModels failed with status code %d", resp.StatusCode)
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var response ListModelsResponse
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	var models []Model
+	err = json.NewDecoder(resp.Body).Decode(&models)
 	if err != nil {
-		return fmt.Errorf("error decoding response body: %v", err)
+		return nil, fmt.Errorf("failed to decode response body: %v", err)
 	}
 
-	for _, model := range response.Data {
-		fmt.Printf("%s (%s)\n", model.DisplayName, model.ModelID)
+	return models, nil
+}
+
+func GetModel(apiKey string, modelID string) (*Model, error) {
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.openai.com/v1/models/%s", modelID), nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create HTTP request: %v", err)
 	}
 
-	return nil
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to perform HTTP request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var model Model
+	err = json.NewDecoder(resp.Body).Decode(&model)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode response body: %v", err)
+	}
+
+	return &model, nil
 }
