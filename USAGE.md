@@ -93,3 +93,31 @@ func main() {
 	fmt.Printf("Chat completion result: %s\n", result)
 }
 ```
+
+// edits
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/0xnu/oacg"
+)
+
+func main() {
+	apiKey := "<your-api-key>"
+
+    model := "text-davinci-edit-001"
+    input := "What day of the wek is it?"
+    instruction := "Fix the spelling mistakes"
+
+    result, err := oacg.GetEdit(apiKey, model, input, instruction)
+    if err != nil {
+        fmt.Printf("Failed to get edit: %v\n", err)
+        return
+    }
+
+    fmt.Printf("Edit result: %s\n", result)
+}
+
+```
