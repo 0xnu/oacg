@@ -334,7 +334,7 @@ func main() {
 	n := 2
 	size := "1024x1024"
 
-	generationResponse, err := openai.GenerateImages(apiKey, prompt, n, size)
+	generationResponse, err := oacg.GenerateImages(apiKey, prompt, n, size)
 	if err != nil {
 		panic(err)
 	}
@@ -360,11 +360,49 @@ func main() {
 	n := 2
 	size := "1024x1024"
 
-	variationResponse, err := openai.VariationsImages(apiKey, imagePath, n, size)
+	variationResponse, err := oacg.VariationsImages(apiKey, imagePath, n, size)
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println(variationResponse.Url)
+}
+```
+
+// edit image
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+	"github.com/0xnu/oacg"
+)
+
+func main() {
+    apiKey := "<your-api-key>"
+
+    // Replace with the path to your image file
+    imageFilePath := "./content/image.png"
+
+    // Replace with the path to your mask file
+    maskFilePath := "./content/mask.png"
+
+    // Set the prompt, number of images, and size
+    prompt := "A cute baby sea otter wearing a beret"
+    n := 2
+    size := "1024x1024"
+
+    // Call the EditImages function to generate edited images
+    editedImages, err := oacg.EditImages(apiKey, imageFilePath, maskFilePath, prompt, n, size)
+    if err != nil {
+        fmt.Println("Error:", err)
+        os.Exit(1)
+    }
+
+    // Print the URLs of the edited images
+    for _, image := range editedImages.Data {
+        fmt.Println("Edited image URL:", image.URL)
+    }
 }
 ```
