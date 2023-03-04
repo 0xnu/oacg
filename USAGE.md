@@ -171,3 +171,98 @@ func main() {
     fmt.Printf("Moderation score: %.2f\n", score)
 }
 ```
+
+// files
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/0xnu/oacg"
+)
+
+func main() {
+    apiKey := "<your-api-key>"
+
+    // List all files
+    fileList, err := oacg.ListFiles(apiKey)
+    if err != nil {
+        fmt.Printf("Failed to list files: %v\n", err)
+        return
+    }
+
+    fmt.Println("List of files:")
+    for _, file := range fileList {
+        fmt.Printf("- %s (ID: %s)\n", file.Purpose, file.ID)
+    }
+}
+```
+
+// finetunes
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/0xnu/oacg"
+)
+
+func main() {
+    apiKey := "<your-api-key>"
+
+	// Create a new fine-tune
+	trainingFileID := "file-XGinujblHPwGLSztz8cPS8XY"
+	fineTuneID, err := openai.CreateFineTune(apiKey, trainingFileID)
+	if err != nil {
+		fmt.Printf("Failed to create fine-tune: %v\n", err)
+		return
+	}
+	fmt.Printf("Fine-tune created with ID %s\n", fineTuneID)
+
+	// List all fine-tunes
+	fineTuneList, err := openai.ListFineTunes(apiKey)
+	if err != nil {
+		fmt.Printf("Failed to list fine-tunes: %v\n", err)
+		return
+	}
+	for _, fineTune := range fineTuneList {
+		fmt.Printf("ID: %s, Model ID: %s, Status: %s\n", fineTune.ID, fineTune.ModelID, fineTune.Status)
+	}
+
+	// Get a specific fine-tune
+	fineTune, err := openai.GetFineTune(apiKey, fineTuneID)
+	if err != nil {
+		fmt.Printf("Failed to get fine-tune: %v\n", err)
+		return
+	}
+	fmt.Printf("Fine-tune status: %s\n", fineTune.Status)
+
+	// Cancel a fine-tune
+	err = openai.CancelFineTune(apiKey, fineTuneID)
+	if err != nil {
+		fmt.Printf("Failed to cancel fine-tune: %v\n", err)
+		return
+	}
+	fmt.Println("Fine-tune cancelled")
+
+	// Get fine-tune events
+	events, err := openai.GetFineTuneEvents(apiKey, fineTuneID)
+	if err != nil {
+		fmt.Printf("Failed to get fine-tune events: %v\n", err)
+		return
+	}
+	for _, event := range events.Data {
+		fmt.Printf("Event: %s, Status: %s, Percentage: %d, Created At: %d\n", event.Event, event.Status, event.Percentage, event.CreatedAt)
+	}
+
+	// Delete a fine-tune
+	err = openai.DeleteFineTune(apiKey, fineTuneID)
+	if err != nil {
+		fmt.Printf("Failed to delete fine-tune: %v\n", err)
+		return
+	}
+	fmt.Println("Fine-tune deleted")
+}
+```
