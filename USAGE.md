@@ -119,5 +119,30 @@ func main() {
 
     fmt.Printf("Edit result: %s\n", result)
 }
+```
 
+// embeddings
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/0xnu/oacg"
+)
+
+func main() {
+    apiKey := "<your-api-key>"
+
+    model := "text-embedding-ada-002"
+    input := "The food was delicious and the waiter was very friendly."
+
+    embeddings, err := oacg.GetEmbeddings(apiKey, model, input)
+    if err != nil {
+        fmt.Printf("Failed to get embeddings: %v\n", err)
+        return
+    }
+
+    fmt.Printf("Embeddings: %v\n", embeddings)
+}
 ```
